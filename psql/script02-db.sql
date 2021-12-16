@@ -1477,9 +1477,9 @@ BEGIN
 
 	INSERT INTO '|| schema ||'.achievement VALUES (''stachievement1'',''Hop on'',''Take part in beta testing'',1,''stbadge10'',true,''Welcome to Gamification Moodle'');
 	INSERT INTO '|| schema ||'.achievement VALUES (''stachievement2'',''Start the great journey'',''Increase your streak to level 2'',2,''stbadge11'',true,''Congratulation'');
-	INSERT INTO '|| schema ||'.achievement VALUES (''stachievement3'',''Forrunner'',''Get to streak level 5'',3,''stbadge12'',true,''Idol for all of us'');
+	INSERT INTO '|| schema ||'.achievement VALUES (''stachievement3'',''Forerunner'',''Get to streak level 5'',3,''stbadge12'',true,''Idol for all of us'');
 	INSERT INTO '|| schema ||'.achievement VALUES (''stachievement4'',''Some Hoola-Hoop'',''Our lucky number. Hidden Achievement'',4,''stbadge13'',true,''I am a momnument to all your sins'');
-	INSERT INTO '|| schema ||'.achievement VALUES (''stachievement5'',''astchievement 5'',''The achievement number 5'',5,''stbadge14'',true,''achievement5messagethisis'');
+	INSERT INTO '|| schema ||'.achievement VALUES (''stachievement5'',''STONKS'',''Please dont'',5,''stbadge14'',true,''achievement5messagethisis'');
 
 	INSERT INTO '|| schema ||'.level VALUES (1,''level 1'', 1,true,''level1messagethisis'');
 	INSERT INTO '|| schema ||'.level VALUES (2,''level 2'', 2,false,''level2messagethisis'');
@@ -1537,6 +1537,7 @@ BEGIN
 	INSERT INTO ' || schema || '.streak_achievement VALUES (''streak1'', ''2'' ,''stachievement2'');
 	INSERT INTO ' || schema || '.streak_achievement VALUES (''streak1'', ''5'' ,''stachievement3'');
 	INSERT INTO ' || schema || '.streak_achievement VALUES (''streak1'', ''7'' ,''stachievement4'');
+	INSERT INTO ' || schema || '.streak_achievement VALUES (''streak1'', ''999'' ,''stachievement5'');
 	';
 	
 	EXECUTE 'SELECT init_member_to_game(''user1'','|| quote_literal(schema) ||');';
