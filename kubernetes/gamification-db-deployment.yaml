@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: 
+  labels: 
+    app: gamification-db
+  name: gamification-db-deployment
+spec: 
+  replicas: 1
+  selector: 
+    matchLabels: 
+      app: gamification-db
+  template: 
+    metadata: 
+      labels: 
+        app: gamification-db
+    spec: 
+      containers: 
+        - 
+          image: registry.tech4comp.dbis.rwth-aachen.de/rwthacis/gamification-db
+          name: gamification-db
+          volumeMounts:
+            - mountPath: "/var/lib/postgresql/data"
+              name: gamification-db-volume
+          ports: 
+            - 
+              containerPort: 5432
+          env:
+            - name: PGDATA
+              value: /pgdata
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: gamification-db-secret
+                  key: password
+      volumes:
+        - name: gamification-db-volume
+          persistentVolumeClaim:
+            claimName: gamification-db-claim
