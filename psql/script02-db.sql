@@ -16,6 +16,8 @@ CREATE TABLE manager.game_info
   description character varying(100),
   CONSTRAINT game_id PRIMARY KEY (game_id)
 )
+
+
 WITH (
   OIDS=FALSE
 );
@@ -23,10 +25,10 @@ ALTER TABLE manager.game_info OWNER TO gamification;
 
 CREATE TABLE manager.member_info
 (
-  member_id character varying(20) NOT NULL,
+  member_id character varying(100) NOT NULL,
   first_name character varying(20),
   last_name character varying(20),
-  email character varying(50),
+  email character varying(100),
   CONSTRAINT member_id PRIMARY KEY (member_id)
 )
 WITH (
@@ -36,7 +38,7 @@ ALTER TABLE manager.member_info OWNER TO gamification;
 
 CREATE TABLE manager.member_game
 (
-  member_id character varying(20) NOT NULL,
+  member_id character varying(100) NOT NULL,
   game_id character varying(20) NOT NULL,
   CONSTRAINT member_game_pk PRIMARY KEY (game_id, member_id),
   CONSTRAINT game_id FOREIGN KEY (game_id)
@@ -70,10 +72,10 @@ BEGIN
 	EXECUTE 'CREATE SCHEMA ' || new_schema ||';';
 
 	EXECUTE 'CREATE TABLE ' || new_schema || '.member (
-	  member_id character varying(20) NOT NULL
+	  member_id character varying(100) NOT NULL
 	, first_name character varying(20)
 	, last_name character varying(20)
-	, email character varying(50)
+	, email character varying(100)
 	, CONSTRAINT member_id PRIMARY KEY (member_id)
 	);';
 
@@ -147,12 +149,13 @@ BEGIN
 	, point_value integer NOT NULL DEFAULT 0
 	, use_notification boolean
 	, notif_message character varying
+	, type character varying
 	, CONSTRAINT action_id PRIMARY KEY (action_id)
 	);';
 
 	-- one to one
 	EXECUTE 'CREATE TABLE ' || new_schema || '.member_level (
-	  member_id character varying(20) NOT NULL
+	  member_id character varying(100) NOT NULL
 	, level_num integer NOT NULL DEFAULT 0
 	, CONSTRAINT member_level_pkey PRIMARY KEY (member_id)
 	, CONSTRAINT member_id FOREIGN KEY (member_id)
@@ -164,7 +167,7 @@ BEGIN
 
 	-- one to one
 	EXECUTE 'CREATE TABLE ' || new_schema || '.member_point (
-	  member_id character varying(20) NOT NULL
+	  member_id character varying(100) NOT NULL
 	, point_value integer NOT NULL DEFAULT 0
 	, CONSTRAINT member_point_pkey PRIMARY KEY (member_id)
 	, CONSTRAINT member_id FOREIGN KEY (member_id)
@@ -176,7 +179,7 @@ BEGIN
 	-- m to m
 	-- unique relation (member, badge)
 	EXECUTE 'CREATE TABLE ' || new_schema || '.member_badge (
-	  member_id character varying(20) NOT NULL
+	  member_id character varying(100) NOT NULL
 	, badge_id character varying(20) NOT NULL
 	, CONSTRAINT member_badge_pkey PRIMARY KEY (member_id, badge_id)
 	, CONSTRAINT member_id FOREIGN KEY (member_id)
@@ -188,7 +191,7 @@ BEGIN
 	-- m to m
 	-- unique relation (member, achievement)
 	EXECUTE 'CREATE TABLE ' || new_schema || '.member_achievement (
-	  member_id character varying(20) NOT NULL
+	  member_id character varying(100) NOT NULL
 	, achievement_id character varying(20) NOT NULL
 	, CONSTRAINT member_achievement_pkey PRIMARY KEY (member_id, achievement_id)
 	, CONSTRAINT member_id FOREIGN KEY (member_id)
@@ -201,7 +204,7 @@ BEGIN
 	-- m to m
 	-- unique relation (member, quest)
 	EXECUTE 'CREATE TABLE ' || new_schema || '.member_quest (
-	  member_id character varying(20) NOT NULL
+	  member_id character varying(100) NOT NULL
 	, quest_id character varying(20) NOT NULL
 	, status ' || new_schema || '.quest_status DEFAULT ''REVEALED''
 	, CONSTRAINT member_quest_pkey PRIMARY KEY (member_id, quest_id)
@@ -216,7 +219,7 @@ BEGIN
 	-- not unique relation (member,action)
 	EXECUTE 'CREATE TABLE ' || new_schema || '.member_action (
 	  id serial NOT NULL
-	, member_id character varying(20) NOT NULL
+	, member_id character varying(100) NOT NULL
 	, action_id character varying(20) NOT NULL
 	, CONSTRAINT member_action_pkey PRIMARY KEY (id)
 	, CONSTRAINT member_id FOREIGN KEY (member_id)
@@ -243,7 +246,7 @@ BEGIN
 	-- m to m
 	-- not unique relation (member,quest,action)
 	EXECUTE 'CREATE TABLE ' || new_schema || '.member_quest_action (
-	  member_id character varying(20) NOT NULL
+	  member_id character varying(100) NOT NULL
 	, quest_id character varying(20) NOT NULL
 	, action_id character varying(20) NOT NULL
 	, completed boolean DEFAULT false
@@ -259,7 +262,7 @@ BEGIN
 	EXECUTE 'CREATE TYPE ' || new_schema || '.notification_type AS ENUM (''BADGE'',''ACHIEVEMENT'',''QUEST'',''LEVEL'',''STREAK'');';
 	
 	EXECUTE 'CREATE TABLE ' || new_schema || '.notification (
-	  member_id character varying(20) NOT NULL
+	  member_id character varying(100) NOT NULL
 	, type ' || new_schema || '.notification_type
 	, type_id character varying (20) NOT NULL
 	, use_notification boolean
@@ -271,7 +274,7 @@ BEGIN
 	-- Create global leaderboard  community type table
 	EXECUTE 'SELECT community_type FROM manager.game_info WHERE game_id = '||quote_literal(new_schema)||'' INTO comm_type;
 	EXECUTE 'CREATE TABLE IF NOT EXISTS global_leaderboard.'||comm_type||'(
-	  member_id character varying(20) NOT NULL
+	  member_id character varying(100) NOT NULL
 	, point_value integer NOT NULL DEFAULT 0
 	, CONSTRAINT '||comm_type||'_pkey PRIMARY KEY (member_id)
 	, CONSTRAINT member_id FOREIGN KEY (member_id)
@@ -332,7 +335,7 @@ BEGIN
 	-- m to m
 	-- unique relation (member, streak)
 	EXECUTE 'CREATE TABLE ' || new_schema || '.member_streak (
-	  member_id character varying(20) NOT NULL
+	  member_id character varying(100) NOT NULL
 	, streak_id character varying(20) NOT NULL
 	, status ' || new_schema || '.streak_status DEFAULT ''ACTIVE''
 	, locked_date TIMESTAMP WITHOUT TIME ZONE NOT NULL
@@ -349,7 +352,7 @@ BEGIN
 	-- m to m
 	-- not unique relation (member,quest,action)
 	EXECUTE 'CREATE TABLE ' || new_schema || '.member_streak_action (
-	  member_id character varying(20) NOT NULL
+	  member_id character varying(100) NOT NULL
 	, streak_id character varying(20) NOT NULL
 	, action_id character varying(20) NOT NULL
 	, completed boolean DEFAULT false
@@ -364,7 +367,7 @@ BEGIN
 	-- m to m
 	-- not unique relation (member,quest,action)
 	EXECUTE 'CREATE TABLE ' || new_schema || '.member_streak_badge (
-	  member_id character varying(20) NOT NULL
+	  member_id character varying(100) NOT NULL
 	, streak_id character varying(20) NOT NULL
 	, badge_id character varying(20) NOT NULL
 	, streak_level integer NOT NULL DEFAULT 1
@@ -380,7 +383,7 @@ BEGIN
 	-- m to m
 	-- not unique relation (member,quest,action)
 	EXECUTE 'CREATE TABLE ' || new_schema || '.member_streak_achievement (
-	  member_id character varying(20) NOT NULL
+	  member_id character varying(100) NOT NULL
 	, streak_id character varying(20) NOT NULL
 	, achievement_id character varying(20) NOT NULL
 	, streak_level integer NOT NULL DEFAULT 1
