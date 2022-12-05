@@ -150,6 +150,7 @@ BEGIN
 	, use_notification boolean
 	, notif_message character varying
 	, type character varying
+	, lrs_occurence character varying
 	, CONSTRAINT action_id PRIMARY KEY (action_id)
 	);';
 
@@ -221,6 +222,7 @@ BEGIN
 	  id serial NOT NULL
 	, member_id character varying(100) NOT NULL
 	, action_id character varying(20) NOT NULL
+	, object_id character varying(20)
 	, CONSTRAINT member_action_pkey PRIMARY KEY (id)
 	, CONSTRAINT member_id FOREIGN KEY (member_id)
 	      REFERENCES ' || new_schema || '.member (member_id) ON UPDATE CASCADE ON DELETE CASCADE
@@ -655,6 +657,8 @@ BEGIN
 	RAISE NOTICE 'ACTION TRIGGERED';
 	-- count how many action_id user has performed
 	-- get quests affected by the performed action
+
+
 	FOR p_quest IN
 		EXECUTE '
 		SELECT quest_id FROM '|| game_id ||'.quest_action WHERE action_id = '|| quote_literal(NEW.action_id) ||'
