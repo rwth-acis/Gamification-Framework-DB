@@ -151,6 +151,8 @@ BEGIN
 	, notif_message character varying
 	, type character varying
 	, lrs_occurence character varying
+	, lrs_attribute character varying
+	, lrs_attribute_value character varying
 	, CONSTRAINT action_id PRIMARY KEY (action_id)
 	);';
 
