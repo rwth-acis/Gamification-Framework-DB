@@ -95,7 +95,7 @@ BEGIN
 	, point_value integer NOT NULL DEFAULT 0
 	, badge_id character varying(50)
 	, use_notification boolean
-	, notif_message character varying(50)
+	, notif_message character varying(150)
 	, CONSTRAINT achievement_id PRIMARY KEY (achievement_id)
 	, CONSTRAINT badge_id FOREIGN KEY (badge_id)
 	      REFERENCES '|| new_schema ||'.badge (badge_id) ON UPDATE CASCADE ON DELETE CASCADE
