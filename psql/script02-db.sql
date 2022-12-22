@@ -493,7 +493,7 @@ BEGIN
 	-- initialize table member_streak
 	EXECUTE 'INSERT INTO '|| game_id ||'.member_streak (member_id, streak_id, status, locked_date, due_date, current_streak_level, highest_streak_level)
 	WITH tab1 as (SELECT * FROM '|| game_id ||'.member CROSS JOIN '|| game_id ||'.streak WHERE member_id='|| quote_literal(member_id) ||')
-	SELECT  member_id, streak_id, status, locked_date, due_date, streak_level, streak_level FROM tab1;
+	SELECT  member_id, streak_id, status, locked_date, due_date, 0, streak_level FROM tab1;
  	';
 	
 	-- initialize table member_streak_action
@@ -742,7 +742,10 @@ BEGIN
 		RAISE NOTICE 'due date is %', quote_literal(dstring);
 		RAISE NOTICE 'now is %', quote_literal(nstring);
 		
-		IF l_date <= now AND now <= d_date then
+		IF l_date = d_date then
+			RAISE NOTICE 'No Action Time, Setting Action time to now';
+			EXECUTE 'UPDATE ' || game_id || '.member_streak_action SET completed=true WHERE streak_id = '|| quote_literal(streaks.streak_id) ||' and member_id = '|| quote_literal(NEW.member_id) ||' AND action_id = '|| quote_literal(NEW.action_id) ||' AND completed=false;';
+		ELSIF l_date <= now AND now <= d_date then
 			RAISE NOTICE 'VALID ACTION TIME';
 		    EXECUTE 'UPDATE ' || game_id || '.member_streak_action SET completed=true WHERE streak_id = '|| quote_literal(streaks.streak_id) ||' and member_id = '|| quote_literal(NEW.member_id) ||' AND action_id = '|| quote_literal(NEW.action_id) ||' AND completed=false;';
 	    -- if action performed after due_date, it means, the action has not performed in time and the streak is failed
@@ -791,7 +794,7 @@ nstring character varying(20);
 BEGIN
 	game_id = TG_TABLE_SCHEMA;
 
-	RAISE NOTICE 'MEMEBER STREAK ACTION STATUS CHANGE DETECTED';
+	RAISE NOTICE 'MEMBER STREAK ACTION STATUS CHANGE DETECTED';
 	RAISE NOTICE 'UPDATED MEMBER %' ,quote_literal(NEW.member_id);
 	RAISE NOTICE 'UPDATED STREAK %' ,quote_literal(NEW.streak_id);
 	RAISE NOTICE 'UPDATED ACTION %' ,quote_literal(NEW.action_id);
@@ -804,7 +807,7 @@ BEGIN
 	RAISE NOTICE 'due date is %', quote_literal(dstring);
 	RAISE NOTICE 'now is %', quote_literal(nstring);
 	
-	IF l_date <= now AND now <= d_date then
+	IF (l_date <= now AND now <= d_date) OR (l_date = d_date) then
 		current_point:=0;
 	
 		-- get all streaks containing the new action
@@ -857,8 +860,17 @@ begin
 	EXECUTE 'SELECT period FROM ' || game_id || '.streak WHERE streak_id = '|| quote_literal(streak_id) ||'' into t_period;
 	EXECUTE 'SELECT locked_date FROM '|| game_id || '.member_streak WHERE streak_id = '|| quote_literal(streak_id) ||' and member_id = '|| quote_literal(member_id) ||''INTO l_date;
 	EXECUTE 'SELECT due_date FROM '|| game_id || '.member_streak WHERE streak_id = '|| quote_literal(streak_id) ||' and member_id = '|| quote_literal(member_id) ||'' INTO d_date;
-	l_date := d_date;
-	d_date := d_date + t_period;
+	EXECUTE 'SELECT LOCALTIMESTAMP(0)' INTO now;
+	IF l_date = d_date then
+		RAISE NOTICE 'DATES are same';
+		l_date = now + t_period;
+		d_date = l_date + t_period;
+	ELSE 
+		l_date := d_date;
+		d_date := d_date + t_period;
+	END IF;	
+	RAISE NOTICE 'locked2 date is %', quote_literal(to_char(l_date, 'YYYY-MM-DD HH24:MI:SS'));
+	RAISE NOTICE 'due2 date is %', quote_literal(to_char(d_date, 'YYYY-MM-DD HH24:MI:SS'));
 	EXECUTE 'SELECT LOCALTIMESTAMP(0)' INTO now;
 	while d_date <= now loop
 		l_date := d_date;
@@ -973,6 +985,7 @@ BEGIN
 		ELSIF  streaks.status = 'UPDATED' then
 			EXECUTE 'SELECT current_streak_level, highest_streak_level FROM ' || game_id || '.member_streak WHERE streak_id = ' || quote_literal(NEW.streak_id) ||' AND member_id = '|| quote_literal(NEW.member_id) ||'' into curr, high;
 		   	curr:=curr + 1;
+			-- somehow curr is always at max before action is even done
 		   	high:=GREATEST(curr,high);
 			EXECUTE 'SELECT handle_streak_reset('||quote_literal(game_id)||', '|| quote_literal(NEW.streak_id) || ', ' || quote_literal(NEW.member_id) ||');';
 		    EXECUTE 'SELECT handle_dates('||quote_literal(game_id)||', '|| quote_literal(NEW.streak_id) || ', ' || quote_literal(NEW.member_id) ||');';
@@ -1095,8 +1108,8 @@ BEGIN
 	SELECT member_id, streak_id, achievement_id, streak_level FROM newtab WHERE streak_id='|| quote_literal(NEW.streak_id) ||' AND achievement_id='|| quote_literal(NEW.achievement_id) ||' ORDER BY member_id ;';
 	
 	EXECUTE 'SELECT streak_level FROM ' ||game_id||'.streak WHERE streak_id = '||quote_literal(NEW.streak_id) ||'' INTO st_level;
-	
-	EXECUTE 'UPDATE ' ||game_id||'.member_streak_achievement SET unlocked=true WHERE streak_id='|| quote_literal(NEW.streak_id) ||' AND streak_level <= ' ||st_level||';';
+	-- i dont get why his would be necessary?
+	-- EXECUTE 'UPDATE ' ||game_id||'.member_streak_achievement SET unlocked=true WHERE streak_id='|| quote_literal(NEW.streak_id) ||' AND streak_level <= ' ||st_level||';';
 
 	RETURN NULL;  -- result is ignored since this is an AFTER trigger
 END;
@@ -1129,7 +1142,7 @@ BEGIN
     -- initialize table member_streak ::after new streak was inserted
  	EXECUTE 'INSERT INTO '|| game_id ||'.member_streak (member_id, streak_id, status, locked_date, due_date, current_streak_level, highest_streak_level)
 	WITH tab1 as (SELECT * FROM '|| game_id ||'.member CROSS JOIN '|| game_id ||'.streak WHERE streak_id='|| quote_literal(NEW.streak_id) ||')
-	SELECT  member_id, streak_id, status, locked_date, due_date, streak_level, streak_level FROM tab1 ORDER BY member_id;';
+	SELECT  member_id, streak_id, status, locked_date, due_date, 0, streak_level FROM tab1 ORDER BY member_id;';
 
 	RETURN NULL;  -- result is ignored since this is an AFTER trigger
 END;
