@@ -809,6 +809,7 @@ BEGIN
 	
 	IF (l_date <= now AND now <= d_date) OR (l_date = d_date) then
 		current_point:=0;
+		action_count:=0;
 	
 		-- get all streaks containing the new action
 		for actions IN
@@ -820,11 +821,14 @@ BEGIN
 			RAISE NOTICE 'CURRENT MEMBER %', quote_literal(NEW.member_id);
 			EXECUTE 'SELECT point_value FROM '|| game_id || '.action WHERE action_id = '|| quote_literal(actions.action_id) ||';' INTO action_point;
 			current_point:=current_point + action_point;
+			action_count=action_count+1;
 		END LOOP;
 	
 		EXECUTE 'SELECT point_th FROM ' || game_id ||'.streak WHERE streak_id= '|| quote_literal(NEW.streak_id) ||';' INTO threshold;
-	
-		IF current_point >= threshold then
+		IF threshold=0 AND action_count>0 then
+			RAISE NOTICE 'ENOUGH POINT COLLECTED. NOW UPDATE STREAK STATUS';
+			EXECUTE 'UPDATE ' || game_id || '.member_streak SET status=''UPDATED'' WHERE member_id = '|| quote_literal(NEW.member_id) ||' AND  streak_id = '|| quote_literal(NEW.streak_id) ||';';
+		ELSIF current_point >= threshold then
 			RAISE NOTICE 'ENOUGH POINT COLLECTED. NOW UPDATE STREAK STATUS';
 			EXECUTE 'UPDATE ' || game_id || '.member_streak SET status=''UPDATED'' WHERE member_id = '|| quote_literal(NEW.member_id) ||' AND  streak_id = '|| quote_literal(NEW.streak_id) ||';';
 		END IF;
