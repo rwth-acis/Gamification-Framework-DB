@@ -784,6 +784,7 @@ game_id character varying(20);
 actions record;
 current_point integer;
 action_point integer;
+action_count integer;
 threshold integer;
 l_date TIMESTAMP WITHOUT TIME ZONE;
 d_date TIMESTAMP WITHOUT TIME ZONE;
