@@ -829,7 +829,7 @@ BEGIN
 		IF threshold=0 AND action_count>0 then
 			RAISE NOTICE 'ENOUGH POINT COLLECTED. NOW UPDATE STREAK STATUS';
 			EXECUTE 'UPDATE ' || game_id || '.member_streak SET status=''UPDATED'' WHERE member_id = '|| quote_literal(NEW.member_id) ||' AND  streak_id = '|| quote_literal(NEW.streak_id) ||';';
-		ELSIF current_point >= threshold then
+		ELSIF current_point >= threshold AND threshold>0 then
 			RAISE NOTICE 'ENOUGH POINT COLLECTED. NOW UPDATE STREAK STATUS';
 			EXECUTE 'UPDATE ' || game_id || '.member_streak SET status=''UPDATED'' WHERE member_id = '|| quote_literal(NEW.member_id) ||' AND  streak_id = '|| quote_literal(NEW.streak_id) ||';';
 		END IF;
