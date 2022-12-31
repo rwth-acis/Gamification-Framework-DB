@@ -11,9 +11,9 @@ GRANT ALL ON SCHEMA public TO gamification;
 
 CREATE TABLE manager.game_info
 (
-  game_id character varying(20) NOT NULL,
-  community_type character varying(20),
-  description character varying(100),
+  game_id character varying(200) NOT NULL,
+  community_type character varying(200),
+  description character varying(200),
   CONSTRAINT game_id PRIMARY KEY (game_id)
 )
 
@@ -25,10 +25,10 @@ ALTER TABLE manager.game_info OWNER TO gamification;
 
 CREATE TABLE manager.member_info
 (
-  member_id character varying(100) NOT NULL,
-  first_name character varying(20),
-  last_name character varying(20),
-  email character varying(100),
+  member_id character varying(200) NOT NULL,
+  first_name character varying(200),
+  last_name character varying(200),
+  email character varying(200),
   CONSTRAINT member_id PRIMARY KEY (member_id)
 )
 WITH (
@@ -38,8 +38,8 @@ ALTER TABLE manager.member_info OWNER TO gamification;
 
 CREATE TABLE manager.member_game
 (
-  member_id character varying(100) NOT NULL,
-  game_id character varying(20) NOT NULL,
+  member_id character varying(200) NOT NULL,
+  game_id character varying(200) NOT NULL,
   CONSTRAINT member_game_pk PRIMARY KEY (game_id, member_id),
   CONSTRAINT game_id FOREIGN KEY (game_id)
       REFERENCES manager.game_info (game_id) ON UPDATE CASCADE ON DELETE CASCADE,
@@ -72,17 +72,17 @@ BEGIN
 	EXECUTE 'CREATE SCHEMA ' || new_schema ||';';
 
 	EXECUTE 'CREATE TABLE ' || new_schema || '.member (
-	  member_id character varying(100) NOT NULL
-	, first_name character varying(20)
-	, last_name character varying(20)
-	, email character varying(100)
+	  member_id character varying(200) NOT NULL
+	, first_name character varying(200)
+	, last_name character varying(200)
+	, email character varying(200)
 	, CONSTRAINT member_id PRIMARY KEY (member_id)
 	);';
 
 	EXECUTE 'CREATE TABLE ' || new_schema || '.badge (
-	  badge_id character varying(20) NOT NULL
-	, name character varying(20) NOT NULL
-	, description character varying(100)
+	  badge_id character varying(200) NOT NULL
+	, name character varying(200) NOT NULL
+	, description character varying(200)
 	, use_notification boolean
 	, notif_message character varying
 	, CONSTRAINT badge_id PRIMARY KEY (badge_id)
@@ -91,7 +91,7 @@ BEGIN
 	EXECUTE 'CREATE TABLE ' || new_schema || '.achievement (
 	  achievement_id character varying(50) NOT NULL
 	, name character varying(50) NOT NULL
-	, description character varying(100)
+	, description character varying(200)
 	, point_value integer NOT NULL DEFAULT 0
 	, badge_id character varying(50)
 	, use_notification boolean
@@ -109,13 +109,13 @@ BEGIN
 
 
 	EXECUTE 'CREATE TABLE ' || new_schema || '.quest (
-	  quest_id character varying(20) NOT NULL
-	, name character varying(20) NOT NULL
-	, description character varying(100)
+	  quest_id character varying(200) NOT NULL
+	, name character varying(200) NOT NULL
+	, description character varying(200)
 	, status ' || new_schema || '.quest_status DEFAULT ''REVEALED''
-	, achievement_id character varying(20)
+	, achievement_id character varying(200)
 	, quest_flag boolean DEFAULT false
-	, quest_id_completed character varying(20) NULL
+	, quest_id_completed character varying(200) NULL
 	, point_flag boolean DEFAULT false
 	, point_value integer DEFAULT 0
 	, use_notification boolean
@@ -131,7 +131,7 @@ BEGIN
 
 	EXECUTE 'CREATE TABLE ' || new_schema || '.level (
 	  level_num integer NOT NULL
-	, name character varying(20) NOT NULL
+	, name character varying(200) NOT NULL
 	, point_value integer NOT NULL DEFAULT 0
 	, use_notification boolean
 	, notif_message character varying
@@ -143,9 +143,9 @@ BEGIN
 	';
 
 	EXECUTE 'CREATE TABLE ' || new_schema || '.action (
-	  action_id character varying(20) NOT NULL
-	, name character varying(20) NOT NULL
-	, description character varying(100)
+	  action_id character varying(200) NOT NULL
+	, name character varying NOT NULL
+	, description character varying
 	, point_value integer NOT NULL DEFAULT 0
 	, use_notification boolean
 	, notif_message character varying
@@ -158,7 +158,7 @@ BEGIN
 
 	-- one to one
 	EXECUTE 'CREATE TABLE ' || new_schema || '.member_level (
-	  member_id character varying(100) NOT NULL
+	  member_id character varying(200) NOT NULL
 	, level_num integer NOT NULL DEFAULT 0
 	, CONSTRAINT member_level_pkey PRIMARY KEY (member_id)
 	, CONSTRAINT member_id FOREIGN KEY (member_id)
@@ -170,7 +170,7 @@ BEGIN
 
 	-- one to one
 	EXECUTE 'CREATE TABLE ' || new_schema || '.member_point (
-	  member_id character varying(100) NOT NULL
+	  member_id character varying(200) NOT NULL
 	, point_value integer NOT NULL DEFAULT 0
 	, CONSTRAINT member_point_pkey PRIMARY KEY (member_id)
 	, CONSTRAINT member_id FOREIGN KEY (member_id)
@@ -182,8 +182,8 @@ BEGIN
 	-- m to m
 	-- unique relation (member, badge)
 	EXECUTE 'CREATE TABLE ' || new_schema || '.member_badge (
-	  member_id character varying(100) NOT NULL
-	, badge_id character varying(20) NOT NULL
+	  member_id character varying(200) NOT NULL
+	, badge_id character varying(200) NOT NULL
 	, CONSTRAINT member_badge_pkey PRIMARY KEY (member_id, badge_id)
 	, CONSTRAINT member_id FOREIGN KEY (member_id)
 	      REFERENCES '|| new_schema ||'.member (member_id) ON UPDATE CASCADE ON DELETE CASCADE
@@ -194,8 +194,8 @@ BEGIN
 	-- m to m
 	-- unique relation (member, achievement)
 	EXECUTE 'CREATE TABLE ' || new_schema || '.member_achievement (
-	  member_id character varying(100) NOT NULL
-	, achievement_id character varying(20) NOT NULL
+	  member_id character varying(200) NOT NULL
+	, achievement_id character varying(200) NOT NULL
 	, CONSTRAINT member_achievement_pkey PRIMARY KEY (member_id, achievement_id)
 	, CONSTRAINT member_id FOREIGN KEY (member_id)
 	      REFERENCES ' || new_schema || '.member (member_id) ON UPDATE CASCADE ON DELETE CASCADE
@@ -207,8 +207,8 @@ BEGIN
 	-- m to m
 	-- unique relation (member, quest)
 	EXECUTE 'CREATE TABLE ' || new_schema || '.member_quest (
-	  member_id character varying(100) NOT NULL
-	, quest_id character varying(20) NOT NULL
+	  member_id character varying(200) NOT NULL
+	, quest_id character varying(200) NOT NULL
 	, status ' || new_schema || '.quest_status DEFAULT ''REVEALED''
 	, CONSTRAINT member_quest_pkey PRIMARY KEY (member_id, quest_id)
 	, CONSTRAINT member_id FOREIGN KEY (member_id)
@@ -222,9 +222,9 @@ BEGIN
 	-- not unique relation (member,action)
 	EXECUTE 'CREATE TABLE ' || new_schema || '.member_action (
 	  id serial NOT NULL
-	, member_id character varying(100) NOT NULL
-	, action_id character varying(20) NOT NULL
-	, object_id character varying(20)
+	, member_id character varying(200) NOT NULL
+	, action_id character varying NOT NULL
+	, object_id character varying(200)
 	, CONSTRAINT member_action_pkey PRIMARY KEY (id)
 	, CONSTRAINT member_id FOREIGN KEY (member_id)
 	      REFERENCES ' || new_schema || '.member (member_id) ON UPDATE CASCADE ON DELETE CASCADE
@@ -236,8 +236,8 @@ BEGIN
 	-- unique relation (quest,action)
 	-- times > 0
 	EXECUTE 'CREATE TABLE ' || new_schema || '.quest_action (
-	  quest_id character varying(20) NOT NULL
-	, action_id character varying(20) NOT NULL
+	  quest_id character varying(200) NOT NULL
+	, action_id character varying NOT NULL
 	, times integer NOT NULL DEFAULT 1
 	, CONSTRAINT quest_action_pkey PRIMARY KEY (quest_id, action_id)
 	, CONSTRAINT quest_id FOREIGN KEY (quest_id)
@@ -250,9 +250,9 @@ BEGIN
 	-- m to m
 	-- not unique relation (member,quest,action)
 	EXECUTE 'CREATE TABLE ' || new_schema || '.member_quest_action (
-	  member_id character varying(100) NOT NULL
-	, quest_id character varying(20) NOT NULL
-	, action_id character varying(20) NOT NULL
+	  member_id character varying(200) NOT NULL
+	, quest_id character varying(200) NOT NULL
+	, action_id character varying NOT NULL
 	, completed boolean DEFAULT false
 	, CONSTRAINT member_quest_action_pkey PRIMARY KEY (member_id, quest_id, action_id)
 	, CONSTRAINT member_id FOREIGN KEY (member_id)
@@ -266,7 +266,7 @@ BEGIN
 	EXECUTE 'CREATE TYPE ' || new_schema || '.notification_type AS ENUM (''BADGE'',''ACHIEVEMENT'',''QUEST'',''LEVEL'',''STREAK'');';
 	
 	EXECUTE 'CREATE TABLE ' || new_schema || '.notification (
-	  member_id character varying(100) NOT NULL
+	  member_id character varying(200) NOT NULL
 	, type ' || new_schema || '.notification_type
 	, type_id character varying (20) NOT NULL
 	, use_notification boolean
@@ -278,7 +278,7 @@ BEGIN
 	-- Create global leaderboard  community type table
 	EXECUTE 'SELECT community_type FROM manager.game_info WHERE game_id = '||quote_literal(new_schema)||'' INTO comm_type;
 	EXECUTE 'CREATE TABLE IF NOT EXISTS global_leaderboard.'||comm_type||'(
-	  member_id character varying(100) NOT NULL
+	  member_id character varying(200) NOT NULL
 	, point_value integer NOT NULL DEFAULT 0
 	, CONSTRAINT '||comm_type||'_pkey PRIMARY KEY (member_id)
 	, CONSTRAINT member_id FOREIGN KEY (member_id)
@@ -291,9 +291,9 @@ BEGIN
 	EXECUTE 'CREATE TYPE ' || new_schema || '.streak_status AS ENUM (''ACTIVE'',''PAUSED'',''FAILED'',''UPDATED'');';
 	
 	EXECUTE 'CREATE TABLE ' || new_schema || '.streak (
-	  streak_id character varying(20) NOT NULL
-	, name character varying(20) NOT NULL
-	, description character varying(100)
+	  streak_id character varying(200) NOT NULL
+	, name character varying(200) NOT NULL
+	, description character varying(200)
 	, streak_level integer NOT NULL DEFAULT 1
 	, status ' || new_schema || '.streak_status DEFAULT ''ACTIVE''
 	, point_th integer NOT NULL
@@ -307,18 +307,18 @@ BEGIN
 	);';
 	
 	EXECUTE 'CREATE TABLE ' || new_schema || '.streak_badge (
-	  streak_id character varying(20) NOT NULL
+	  streak_id character varying(200) NOT NULL
 	, streak_level integer NOT NULL DEFAULT 1
-	, badge_id character varying(20)
+	, badge_id character varying(200)
 	, CONSTRAINT streak_level_b_pkey PRIMARY KEY (streak_id, streak_level)
 	, CONSTRAINT badge_id FOREIGN KEY (badge_id)
 	      REFERENCES ' || new_schema || '.badge (badge_id) ON UPDATE CASCADE ON DELETE CASCADE
 	);';
 	
 	EXECUTE 'CREATE TABLE ' || new_schema || '.streak_achievement (
-	  streak_id character varying(20) NOT NULL
+	  streak_id character varying(200) NOT NULL
 	, streak_level integer NOT NULL DEFAULT 1
-	, achievement_id character varying(20)
+	, achievement_id character varying(200)
 	, CONSTRAINT streak_level_a_pkey PRIMARY KEY (streak_id, streak_level)
 	, CONSTRAINT achievement_id FOREIGN KEY (achievement_id)
 	      REFERENCES ' || new_schema || '.achievement (achievement_id) ON UPDATE CASCADE ON DELETE CASCADE
@@ -327,8 +327,8 @@ BEGIN
 	-- m to m
 	-- unique relation (quest,action)
 	EXECUTE 'CREATE TABLE ' || new_schema || '.streak_action (
-	  streak_id character varying(20) NOT NULL
-	, action_id character varying(20) NOT NULL
+	  streak_id character varying(200) NOT NULL
+	, action_id character varying NOT NULL
 	, CONSTRAINT streak_action_pkey PRIMARY KEY (streak_id, action_id)
 	, CONSTRAINT streak_id FOREIGN KEY (streak_id)
 	      REFERENCES ' || new_schema || '.streak (streak_id) ON UPDATE CASCADE ON DELETE CASCADE
@@ -339,8 +339,8 @@ BEGIN
 	-- m to m
 	-- unique relation (member, streak)
 	EXECUTE 'CREATE TABLE ' || new_schema || '.member_streak (
-	  member_id character varying(100) NOT NULL
-	, streak_id character varying(20) NOT NULL
+	  member_id character varying(200) NOT NULL
+	, streak_id character varying(200) NOT NULL
 	, status ' || new_schema || '.streak_status DEFAULT ''ACTIVE''
 	, locked_date TIMESTAMP WITHOUT TIME ZONE NOT NULL
 	, due_date TIMESTAMP WITHOUT TIME ZONE NOT NULL
@@ -356,9 +356,9 @@ BEGIN
 	-- m to m
 	-- not unique relation (member,quest,action)
 	EXECUTE 'CREATE TABLE ' || new_schema || '.member_streak_action (
-	  member_id character varying(100) NOT NULL
-	, streak_id character varying(20) NOT NULL
-	, action_id character varying(20) NOT NULL
+	  member_id character varying(200) NOT NULL
+	, streak_id character varying(200) NOT NULL
+	, action_id character varying NOT NULL
 	, completed boolean DEFAULT false
 	, CONSTRAINT member_streak_action_pkey PRIMARY KEY (member_id, streak_id, action_id)
 	, CONSTRAINT member_id FOREIGN KEY (member_id)
@@ -371,9 +371,9 @@ BEGIN
 	-- m to m
 	-- not unique relation (member,quest,action)
 	EXECUTE 'CREATE TABLE ' || new_schema || '.member_streak_badge (
-	  member_id character varying(100) NOT NULL
-	, streak_id character varying(20) NOT NULL
-	, badge_id character varying(20) NOT NULL
+	  member_id character varying(200) NOT NULL
+	, streak_id character varying(200) NOT NULL
+	, badge_id character varying(200) NOT NULL
 	, streak_level integer NOT NULL DEFAULT 1
 	, active boolean DEFAULT false
 	, CONSTRAINT member_streak_badge_pkey PRIMARY KEY (member_id, streak_id, badge_id)
@@ -387,9 +387,9 @@ BEGIN
 	-- m to m
 	-- not unique relation (member,quest,action)
 	EXECUTE 'CREATE TABLE ' || new_schema || '.member_streak_achievement (
-	  member_id character varying(100) NOT NULL
-	, streak_id character varying(20) NOT NULL
-	, achievement_id character varying(20) NOT NULL
+	  member_id character varying(200) NOT NULL
+	, streak_id character varying(200) NOT NULL
+	, achievement_id character varying(200) NOT NULL
 	, streak_level integer NOT NULL DEFAULT 1
 	, unlocked boolean DEFAULT false
 	, CONSTRAINT member_streak_achievement_pkey PRIMARY KEY (member_id, streak_id, achievement_id)
@@ -557,7 +557,7 @@ CREATE OR REPLACE FUNCTION update_quest_status_with_point() RETURNS trigger AS
 $BODY$
 DECLARE
 p_quest record;
-game_id character varying(20);
+game_id character varying(200);
 current_level integer;
 BEGIN
 	game_id = TG_TABLE_SCHEMA;
@@ -596,7 +596,7 @@ CREATE OR REPLACE FUNCTION update_quest_status_with_quest() RETURNS trigger AS
 $BODY$
 DECLARE
 p_quest record;
-game_id character varying(20);
+game_id character varying(200);
 BEGIN
 	game_id = TG_TABLE_SCHEMA;
 	-- Only point constraint
@@ -652,7 +652,7 @@ comp_result integer;
 current_point integer;
 point_action integer;
 quests_use_action character varying(15);
-game_id character varying(20);
+game_id character varying(200);
 BEGIN
 	game_id = TG_TABLE_SCHEMA;
 
@@ -711,15 +711,15 @@ LANGUAGE plpgsql VOLATILE;
 CREATE OR REPLACE FUNCTION update_member_streak_action_status() RETURNS trigger AS
 $BODY$
 DECLARE
-game_id character varying(20);
-streak_id character varying(20);
+game_id character varying(200);
+streak_id character varying(200);
 streaks record;
 l_date TIMESTAMP WITHOUT TIME ZONE;
 d_date TIMESTAMP WITHOUT TIME ZONE;
 now TIMESTAMP;
-lstring character varying(20);
-dstring character varying(20);
-nstring character varying(20);
+lstring character varying(200);
+dstring character varying(200);
+nstring character varying(200);
 BEGIN
 	game_id = TG_TABLE_SCHEMA;
 
@@ -780,7 +780,7 @@ LANGUAGE plpgsql VOLATILE;
 CREATE OR REPLACE FUNCTION update_member_streak_status() RETURNS trigger AS
 $BODY$
 DECLARE
-game_id character varying(20);
+game_id character varying(200);
 actions record;
 current_point integer;
 action_point integer;
@@ -789,9 +789,9 @@ threshold integer;
 l_date TIMESTAMP WITHOUT TIME ZONE;
 d_date TIMESTAMP WITHOUT TIME ZONE;
 now TIMESTAMP;
-lstring character varying(20);
-dstring character varying(20);
-nstring character varying(20);
+lstring character varying(200);
+dstring character varying(200);
+nstring character varying(200);
 BEGIN
 	game_id = TG_TABLE_SCHEMA;
 
@@ -907,7 +907,7 @@ current_point integer;
 comp_result integer;
 ach record;
 point_obtained integer;
-achievement_id character varying(20);
+achievement_id character varying(200);
 BEGIN
 		RAISE NOTICE 'HANDLING REWARD FUNKTION FOR STREAK %', quote_literal(streak_id);
 		RAISE NOTICE 'GAME IS %', quote_literal(game_id);
@@ -968,7 +968,7 @@ LANGUAGE plpgsql VOLATILE;
 CREATE OR REPLACE FUNCTION update_member_streak() RETURNS trigger AS
 $BODY$
 DECLARE
-game_id character varying(20);
+game_id character varying(200);
 streaks record;
 curr integer;
 high integer;
@@ -1034,7 +1034,7 @@ LANGUAGE plpgsql VOLATILE;
 CREATE OR REPLACE FUNCTION update_streak_action_constraint_function() RETURNS trigger AS
 $BODY$
 DECLARE
-game_id character varying(20);
+game_id character varying(200);
 BEGIN
 	game_id = TG_TABLE_SCHEMA;
 
@@ -1066,7 +1066,7 @@ LANGUAGE plpgsql VOLATILE;
 CREATE OR REPLACE FUNCTION update_streak_badge_constraint_function() RETURNS trigger AS
 $BODY$
 DECLARE
-game_id character varying(20);
+game_id character varying(200);
 st_level integer;
 BEGIN
 	game_id = TG_TABLE_SCHEMA;
@@ -1102,7 +1102,7 @@ LANGUAGE plpgsql VOLATILE;
 CREATE OR REPLACE FUNCTION update_streak_achievement_constraint_function() RETURNS trigger AS
 $BODY$
 DECLARE
-game_id character varying(20);
+game_id character varying(200);
 st_level integer;
 BEGIN
 	game_id = TG_TABLE_SCHEMA;
@@ -1138,7 +1138,7 @@ LANGUAGE plpgsql VOLATILE;
 CREATE OR REPLACE FUNCTION update_streak_constraint_function() RETURNS trigger AS
 $BODY$
 DECLARE
-game_id character varying(20);
+game_id character varying(200);
 BEGIN
 	game_id = TG_TABLE_SCHEMA;
 
@@ -1180,8 +1180,8 @@ current_point integer;
 comp_result integer;
 ach record;
 point_obtained integer;
-achievement_id character varying(20);
-game_id character varying(20);
+achievement_id character varying(200);
+game_id character varying(200);
 BEGIN
 	game_id = TG_TABLE_SCHEMA;
 
@@ -1240,7 +1240,7 @@ LANGUAGE plpgsql VOLATILE;
 CREATE OR REPLACE FUNCTION member_badge_observer_function() RETURNS trigger AS
 $BODY$
 DECLARE
-game_id character varying(20);
+game_id character varying(200);
 BEGIN
 	game_id = TG_TABLE_SCHEMA;
 
@@ -1274,7 +1274,7 @@ LANGUAGE plpgsql VOLATILE;
 CREATE OR REPLACE FUNCTION member_achievement_observer_function() RETURNS trigger AS
 $BODY$
 DECLARE
-game_id character varying(20);
+game_id character varying(200);
 BEGIN
 	game_id = TG_TABLE_SCHEMA;
 
@@ -1307,7 +1307,7 @@ LANGUAGE plpgsql VOLATILE;
 CREATE OR REPLACE FUNCTION member_level_observer_function() RETURNS trigger AS
 $BODY$
 DECLARE
-game_id character varying(20);
+game_id character varying(200);
 BEGIN
 	game_id = TG_TABLE_SCHEMA;
 
@@ -1342,7 +1342,7 @@ LANGUAGE plpgsql VOLATILE;
 CREATE OR REPLACE FUNCTION global_leaderboard_table_update_function() RETURNS trigger AS
 $BODY$
 DECLARE
-game_id character varying(20);
+game_id character varying(200);
 comm_type text;
 _found int;
 BEGIN
@@ -1386,7 +1386,7 @@ LANGUAGE plpgsql VOLATILE;
 CREATE OR REPLACE FUNCTION update_quest_constraint_function() RETURNS trigger AS
 $BODY$
 DECLARE
-game_id character varying(20);
+game_id character varying(200);
 BEGIN
 	game_id = TG_TABLE_SCHEMA;
 
@@ -1418,7 +1418,7 @@ LANGUAGE plpgsql VOLATILE;
 CREATE OR REPLACE FUNCTION update_quest_action_constraint_function() RETURNS trigger AS
 $BODY$
 DECLARE
-game_id character varying(20);
+game_id character varying(200);
 BEGIN
 	game_id = TG_TABLE_SCHEMA;
 
