@@ -216,6 +216,17 @@ BEGIN
 	, CONSTRAINT quest_id FOREIGN KEY (quest_id)
 	      REFERENCES ' || new_schema || '.quest (quest_id) ON UPDATE CASCADE ON DELETE CASCADE   -- explicit pk
 	);';
+
+	-- m to m
+	-- unique relation (member, badge)
+	EXECUTE 'CREATE TABLE ' || new_schema || '.member_profile (
+	  member_id character varying(200) NOT NULL
+	, badge_id character varying(200) NOT NULL
+	, CONSTRAINT member_id FOREIGN KEY (member_id)
+	      REFERENCES ' || new_schema || '.member (member_id) ON UPDATE CASCADE ON DELETE CASCADE
+	, CONSTRAINT badge_id FOREIGN KEY (badge_id)
+	      REFERENCES ' || new_schema || '.badge (badge_id) ON UPDATE CASCADE ON DELETE CASCADE   -- explicit pk
+	);';
 	
 
 	-- m to m
@@ -541,6 +552,7 @@ BEGIN
 	EXECUTE 'DELETE FROM '|| game_id ||'.member_badge WHERE member_id = '|| quote_literal(member_id) ||';';
 	EXECUTE 'DELETE FROM '|| game_id ||'.member_level WHERE member_id = '|| quote_literal(member_id) ||';';
 	EXECUTE 'DELETE FROM '|| game_id ||'.member_point WHERE member_id = '|| quote_literal(member_id) ||';';
+	EXECUTE 'DELETE FROM '|| game_id ||'.member_profile WHERE member_id = '|| quote_literal(member_id) ||';';
 	EXECUTE 'DELETE FROM '|| game_id ||'.member_quest WHERE member_id = '|| quote_literal(member_id) ||';';
 	EXECUTE 'DELETE FROM '|| game_id ||'.member_streak WHERE member_id = '|| quote_literal(member_id) ||';';
 	EXECUTE 'DELETE FROM '|| game_id ||'.member_quest_action WHERE member_id = '|| quote_literal(member_id) ||';';
