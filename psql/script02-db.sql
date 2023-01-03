@@ -221,11 +221,18 @@ BEGIN
 	-- unique relation (member, badge)
 	EXECUTE 'CREATE TABLE ' || new_schema || '.member_profile (
 	  member_id character varying(200) NOT NULL
-	, badge_id character varying(200) NOT NULL
+	, badge_id character varying(200) 
 	, CONSTRAINT member_id FOREIGN KEY (member_id)
 	      REFERENCES ' || new_schema || '.member (member_id) ON UPDATE CASCADE ON DELETE CASCADE
-	, CONSTRAINT badge_id FOREIGN KEY (badge_id)
-	      REFERENCES ' || new_schema || '.badge (badge_id) ON UPDATE CASCADE ON DELETE CASCADE   -- explicit pk
+	);';
+
+		-- m to n
+	-- unique relation (member, badge)
+	EXECUTE 'CREATE TABLE ' || new_schema || '.member_lrs (
+	  member_id character varying(200) NOT NULL
+	, statement_id character varying(250) 
+	, CONSTRAINT member_id FOREIGN KEY (member_id)
+	      REFERENCES ' || new_schema || '.member (member_id) ON UPDATE CASCADE ON DELETE CASCADE
 	);';
 	
 
@@ -506,6 +513,10 @@ BEGIN
 	WITH tab1 as (SELECT * FROM '|| game_id ||'.member CROSS JOIN '|| game_id ||'.streak WHERE member_id='|| quote_literal(member_id) ||')
 	SELECT  member_id, streak_id, status, locked_date, due_date, 0, streak_level FROM tab1;
  	';
+
+	-- initialize table member_profile
+	EXECUTE 'INSERT INTO '|| game_id ||'.member_profile (member_id, badge_id) VALUES ('|| quote_literal(member_id) ||','''')';
+ 	
 	
 	-- initialize table member_streak_action
 	EXECUTE 'INSERT INTO '|| game_id ||'.member_streak_action
@@ -553,6 +564,7 @@ BEGIN
 	EXECUTE 'DELETE FROM '|| game_id ||'.member_level WHERE member_id = '|| quote_literal(member_id) ||';';
 	EXECUTE 'DELETE FROM '|| game_id ||'.member_point WHERE member_id = '|| quote_literal(member_id) ||';';
 	EXECUTE 'DELETE FROM '|| game_id ||'.member_profile WHERE member_id = '|| quote_literal(member_id) ||';';
+	EXECUTE 'DELETE FROM '|| game_id ||'.member_lrs WHERE member_id = '|| quote_literal(member_id) ||';';
 	EXECUTE 'DELETE FROM '|| game_id ||'.member_quest WHERE member_id = '|| quote_literal(member_id) ||';';
 	EXECUTE 'DELETE FROM '|| game_id ||'.member_streak WHERE member_id = '|| quote_literal(member_id) ||';';
 	EXECUTE 'DELETE FROM '|| game_id ||'.member_quest_action WHERE member_id = '|| quote_literal(member_id) ||';';
