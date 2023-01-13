@@ -222,6 +222,7 @@ BEGIN
 	EXECUTE 'CREATE TABLE ' || new_schema || '.member_profile (
 	  member_id character varying(200) NOT NULL
 	, badge_id character varying(200) 
+	, nickname character varying(10) 
 	, CONSTRAINT member_id FOREIGN KEY (member_id)
 	      REFERENCES ' || new_schema || '.member (member_id) ON UPDATE CASCADE ON DELETE CASCADE
 	);';
@@ -515,7 +516,7 @@ BEGIN
  	';
 
 	-- initialize table member_profile
-	EXECUTE 'INSERT INTO '|| game_id ||'.member_profile (member_id, badge_id) VALUES ('|| quote_literal(member_id) ||','''')';
+	EXECUTE 'INSERT INTO '|| game_id ||'.member_profile (member_id, badge_id, nickname) VALUES ('|| quote_literal(member_id) ||','''','''')';
  	
 	
 	-- initialize table member_streak_action
