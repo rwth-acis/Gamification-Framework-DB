@@ -287,7 +287,7 @@ BEGIN
 	EXECUTE 'CREATE TABLE ' || new_schema || '.notification (
 	  member_id character varying(200) NOT NULL
 	, type ' || new_schema || '.notification_type
-	, type_id character varying (20) NOT NULL
+	, type_id character varying (200) NOT NULL
 	, use_notification boolean
 	, message character varying
 	, CONSTRAINT member_id FOREIGN KEY (member_id)
