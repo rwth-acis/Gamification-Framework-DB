@@ -1024,13 +1024,14 @@ BEGIN
 			EXECUTE 'SELECT handle_rewards(' ||quote_literal(game_id)||', '|| quote_literal(NEW.streak_id) ||',' || quote_literal(NEW.member_id) || ',' || quote_literal(curr) ||');';
 			
 		ELSIF  streaks.status = 'FAILED' then
+			RAISE NOTICE 'RESTARTING STREAK'
 			EXECUTE 'SELECT current_streak_level FROM ' || game_id || '.member_streak WHERE streak_id = ' || quote_literal(NEW.streak_id) ||' AND member_id = '|| quote_literal(NEW.member_id) ||'' into curr;
 			curr:=1;
 			EXECUTE 'SELECT handle_streak_reset('||quote_literal(game_id)||', '|| quote_literal(NEW.streak_id) || ', ' || quote_literal(NEW.member_id) ||');';
 		    EXECUTE 'SELECT handle_dates('||quote_literal(game_id)||', '|| quote_literal(NEW.streak_id) || ', ' || quote_literal(NEW.member_id) ||');';
 			EXECUTE 'UPDATE ' || game_id || '.member_streak  SET current_streak_level= '|| curr || ' WHERE streak_id = '|| quote_literal(NEW.streak_id) ||' AND member_id = '|| quote_literal(NEW.member_id) ||';';
 			EXECUTE 'SELECT handle_representation('||quote_literal(game_id)||', '|| quote_literal(NEW.streak_id) ||', '|| quote_literal(NEW.member_id) ||' , '|| quote_literal(curr)||');';
-			
+			EXECUTE 'SELECT handle_rewards(' ||quote_literal(game_id)||', '|| quote_literal(NEW.streak_id) ||',' || quote_literal(NEW.member_id) || ',' || quote_literal(curr) ||');';
 		ELSIF  streaks.status = 'ACTIVE' then
 			RAISE NOTICE 'NOTHING TO BE DONE';
 		END IF;
