@@ -902,7 +902,7 @@ begin
 	RAISE NOTICE 'locked2 date is %', quote_literal(to_char(l_date, 'YYYY-MM-DD HH24:MI:SS'));
 	RAISE NOTICE 'due2 date is %', quote_literal(to_char(d_date, 'YYYY-MM-DD HH24:MI:SS'));
 	EXECUTE 'SELECT LOCALTIMESTAMP(0)' INTO now;
-	while d_date <= now loop
+	while d_date <= now + t_period loop
 		l_date := d_date;
 		d_date := d_date + t_period;
 	end loop;
